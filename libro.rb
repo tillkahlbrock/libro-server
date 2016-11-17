@@ -4,7 +4,7 @@ require 'sinatra'
 require_relative './parser.rb'
 require_relative './fetcher.rb'
 
-class Libro
+class Libro < Sinatra::Base
     before do
         headers \
         "Content-Type"   => "application/json"
