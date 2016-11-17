@@ -4,6 +4,11 @@ require 'sinatra'
 require_relative './parser.rb'
 require_relative './fetcher.rb'
 
+before do
+    headers \
+    "Content-Type"   => "application/json"
+end
+
 post '/' do
     username, password = parse_request_params
     parser = Parser.new()
