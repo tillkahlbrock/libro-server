@@ -21,9 +21,18 @@ class Libro < Sinatra::Base
         media_list[1..-1].to_json
     end
 
+    options "*" do
+        response.headers["Allow"] = "POST"
+        response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        200
+    end
+
     def parse_request_params
         request.body.rewind
         body = JSON.parse request.body.read
+
+        response.headers["Access-Control-Allow-Origin"] = "*"
         return body['username'], body['password']
     end
 end
