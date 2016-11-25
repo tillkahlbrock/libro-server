@@ -10,6 +10,7 @@ class Libro < Sinatra::Base
 
     def initialize
         @auth_secret = ENV['AUTH_SECRET']
+        @base_url = ENV['BASE_URL']
         @hash_algorithm = 'HS256'
         @parser = Parser.new
         @fetcher = Fetcher.new
@@ -30,7 +31,7 @@ class Libro < Sinatra::Base
         decoded_token = JWT.decode token, @auth_secret, true, {:algorithm => @hash_algorithm }
         payload = decoded_token[0]
 
-        media_data = @fetcher.fetch_media('https://opac.geesthacht-schwarzenbek.de/opax1/user.C', payload['username'], payload['password'])
+        media_data = @fetcher.fetch_media(@base_url + '/user.C', payload['username'], payload['password'])
         media_list = @parser.media_list(media_data)
 
         media_list[1..-1].to_json
