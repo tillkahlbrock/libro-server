@@ -28,10 +28,9 @@ class Libro < Sinatra::Base
     post '/' do
         set_headers
         token = assert_and_read_token
-        decoded_token = JWT.decode token, @auth_secret, true, {:algorithm => @hash_algorithm }
-        payload = decoded_token[0]
+        decoded_token_payload = decode_token_payload token
 
-        media_data = @fetcher.fetch_media(@base_url + '/user.C', payload['username'], payload['password'])
+        media_data = @fetcher.fetch_media(@base_url + '/user.C', decoded_token_payload['username'], decoded_token_payload['password'])
         media_list = @parser.media_list(media_data)
 
         media_list[1..-1].to_json
@@ -42,6 +41,11 @@ class Libro < Sinatra::Base
         response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept, Authorization"
         response.headers["Access-Control-Allow-Origin"] = "*"
         200
+    end
+
+    def decode_token_payload token
+        decoded_token = JWT.decode token, @auth_secret, true, {:algorithm => @hash_algorithm }
+        decoded_token[0]
     end
 
     def assert_and_read_token
