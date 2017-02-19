@@ -4,7 +4,7 @@ require 'sinatra'
 require 'jwt'
 
 require_relative './parser.rb'
-require_relative './fetcher.rb'
+require_relative './api.rb'
 
 class Libro < Sinatra::Base
 
@@ -13,7 +13,7 @@ class Libro < Sinatra::Base
         @base_url = ENV['BASE_URL']
         @hash_algorithm = 'HS256'
         @parser = Parser.new
-        @fetcher = Fetcher.new
+        @api = Api.new
         super
     end
 
@@ -30,10 +30,18 @@ class Libro < Sinatra::Base
         token = assert_and_read_token
         decoded_token_payload = decode_token_payload token
 
-        media_data = @fetcher.fetch_media(@base_url + '/user.C', decoded_token_payload['username'], decoded_token_payload['password'])
+        media_data = @api.fetch_media(@base_url + '/user.C', decoded_token_payload['username'], decoded_token_payload['password'])
         media_list = @parser.media_list(media_data)
 
         media_list[1..-1].to_json
+    end
+
+    post '/renew/:id' do |id|
+        set_headers
+        token = assert_and_read_token
+        decoded_token_payload = decode_token_payload token
+
+        @api.renew_media(@base_url + '/renewmedia.C', id, decoded_token_payload['username'], decoded_token_payload['password'])
     end
 
     options "*" do
